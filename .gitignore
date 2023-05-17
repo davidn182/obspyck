@@ -1,2 +1,13 @@
 obspyck_env/
+.DS_Store
+Thumbs.db
+.env
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.so
+*.dll
+*.exe
+
 
