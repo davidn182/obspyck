@@ -13,8 +13,8 @@ from obspy.core.event import WaveformStreamID, ResourceIdentifier, \
 
 from .util import VERSION_INFO
 
-ID_ROOT = "smi:de.erdbeben-in-bayern"
-AGENCY_ID = "Erdbebendienst Bayern"
+ID_ROOT = "smi:tudelft.nl/event/"
+AGENCY_ID = "TU Delft"
 AGENCY_URI = "%s/agency" % ID_ROOT
 # these classes get subclassed and need to be patched in readEvents
 CLASSES_TO_PATCH = [
