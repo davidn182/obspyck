@@ -3164,13 +3164,7 @@ class ObsPyck(QtWidgets.QMainWindow):
         against S-P time for every station and doing a linear regression
         using rpy. An estimate of Vp/Vs is given by the slope + 1.
         """
-        try:
-            import rpy
-        except:
-            err = "Error: Package rpy could not be imported!\n" + \
-                  "(We should switch to scipy polyfit, anyway!)"
-            self.error(err)
-            return
+        from scipy.stats import linregress
         pTimes = []
         spTimes = []
         stations = []
@@ -3193,13 +3187,9 @@ class ObsPyck(QtWidgets.QMainWindow):
             err = "Error: Less than 2 P-S Pairs!"
             self.error(err)
             return
-        my_lsfit = rpy.r.lsfit(pTimes, spTimes)
-        gradient = my_lsfit['coefficients']['X']
-        intercept = my_lsfit['coefficients']['Intercept']
+        gradient, intercept, r_value, p_value, std_err = linregress(pTimes, spTimes)
         vpvs = gradient + 1.
-        ressqrsum = 0.
-        for res in my_lsfit['residuals']:
-            ressqrsum += (res ** 2)
+        ressqrsum = sum((y - gradient*x - intercept)**2 for x, y in zip(pTimes, spTimes))
         y0 = 0.
         x0 = - (intercept / gradient)
         x1 = max(pTimes)
