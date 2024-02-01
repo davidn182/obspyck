@@ -273,6 +273,7 @@ def _get_metadata(tr, inv):
     try:
         coordinates = inv.get_coordinates(
             tr.id, tr.stats.starttime)
+        print(coordinates)
         orientation = get_orientation(
             inv, tr.id, tr.stats.starttime)
         response = inv.get_response(tr.id, tr.stats.starttime)
