@@ -3164,7 +3164,15 @@ class ObsPyck(QtWidgets.QMainWindow):
         against S-P time for every station and doing a linear regression
         using rpy. An estimate of Vp/Vs is given by the slope + 1.
         """
-        from scipy.stats import linregress
+        try:
+            # Tania
+            import numpy as np
+        #            import rpy
+        except ImportError:
+            err = "Error: Package rpy could not be imported!\n" + \
+                  "(We should switch to scipy polyfit, anyway!)"
+            self.error(err)
+            return
         pTimes = []
         spTimes = []
         stations = []
@@ -3187,9 +3195,22 @@ class ObsPyck(QtWidgets.QMainWindow):
             err = "Error: Less than 2 P-S Pairs!"
             self.error(err)
             return
-        gradient, intercept, r_value, p_value, std_err = linregress(pTimes, spTimes)
+        #Tania
+        my_lsfit = np.polyfit(pTimes,spTimes,1,full=True)
+        #        my_lsfit = rpy.r.lsfit(pTimes, spTimes)
+        gradient = my_lsfit[0][0]
+        #        print(gradient)
+        #        gradient = my_lsfit['coefficients']['X']
+        intercept = my_lsfit[0][1]
+        #        print(intercept)
+        #        intercept = my_lsfit['coefficients']['Intercept']
         vpvs = gradient + 1.
-        ressqrsum = sum((y - gradient*x - intercept)**2 for x, y in zip(pTimes, spTimes))
+        #        print(vpvs)
+        #        print(my_lsfit)
+        ressqrsum = my_lsfit[1][0]
+        #        ressqrsum = 0.
+        #        for res in my_lsfit['residuals']:
+        #            ressqrsum += (res ** 2)
         y0 = 0.
         x0 = - (intercept / gradient)
         x1 = max(pTimes)
@@ -3219,7 +3240,7 @@ class ObsPyck(QtWidgets.QMainWindow):
                 (vpvs, ressqrsum), transform=ax.transAxes)
         ax.text(0.1, 0.1, "Origin time from event location", color="red",
                 transform=ax.transAxes)
-        #ax.axis("auto")
+        # ax.axis("auto")
         ax.set_xlim(min(x0 - 1, otime - 1), max(pTimes) + 1)
         ax.set_ylim(-1, max(spTimes) + 1)
         ax.set_xlabel("absolute P times (julian seconds, truncated)")
@@ -3951,6 +3972,8 @@ class ObsPyck(QtWidgets.QMainWindow):
         name = str(self.catalog[0].resource_id).split("/")[-1] #XXX id of the file
         # create XML and also save in temporary directory for inspection purposes
         name = "obspyck_" + name
+        #Next line added by Tania
+        #name = self.options.event[:-4] + '_obspyck'
         if not name.endswith(".xml"):
             name += ".xml"
         self.info("creating xml...")
